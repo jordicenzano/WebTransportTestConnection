@@ -29,7 +29,7 @@ Starts webserver in port 8080
 ./start_webserver.py
 ```
 
-- Open test webpage and hit "Connect"
+- Open test webpage (URL should be `http://localhost:8080/index.html`), and hit "Connect", 
 If all works as expected you should see a log indicating "WT connection OPENED!"
 
 # Thanks
