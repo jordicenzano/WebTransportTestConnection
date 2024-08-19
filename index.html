@@ -1,0 +1,77 @@
+<!doctype html>
+
+<head>
+    <style>
+        .boxed {
+            border: 1px solid black;
+        }
+
+        .styleform label {
+            float: left;
+            margin: 5px 10px 5px 10px;
+        }
+
+        .styleform input {
+            margin: 5px 10px 5px 10px;
+        }
+
+        /* this gives space for the label on the left */
+        .styleform .clear {
+            clear: both;
+        }
+
+        /* prevent elements from stacking weirdly */
+    </style>
+    <title>Test Ultra low latency with WebCodecs + WebTransport PLAYER (by Jordi Cenzano)</title>
+</head>
+
+<body>
+    <h1>WebTransportConnectionTest</h1>
+    <h2>Test code to connect to webtransport server</h2>    
+    <div class="boxed">
+        <div class="styleform">
+            <form>
+                <h2>Data needed</h2>
+                <label id="wtDestData">WT server:<input id="wtServerUrl" type="text"
+                        value="https://localhost:4433/moq" size="64"></label>
+            </form>
+            <button id="btnConnect" type="button">Connect</button>
+        </div>
+    </div>
+</body>
+<script type="module">
+    async function getBinaryFile(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        return await response.arrayBuffer()
+    }
+
+    async function connect() {
+        const urlHostPort = document.getElementById('wtServerUrl').value;
+
+        const fingerprint_filename = location.href.substring(0, location.href.lastIndexOf('/')+1) + '/certs/certificate_fingerprint.hex'; 
+        const data = await getBinaryFile(fingerprint_filename)
+
+        const wt = new WebTransport(urlHostPort, { serverCertificateHashes: [{ algorithm: 'sha-256', value: data}]})        
+        wt.closed
+        .then(() => {
+          console.log("WT connection closed")
+        })
+        .catch(err => {
+            console.error(`WT closing connection: ${JSON.stringify(err)}` )
+        })
+
+        wt.ready
+        .then(() => {
+          console.log("WT connection OPENED!")
+        })
+        .catch(err => {
+            console.error(`WT opening connection: ${JSON.stringify(err)}` )
+        })
+    }
+
+    document.getElementById('btnConnect').addEventListener("click", (event) => {connect()})
+</script>
